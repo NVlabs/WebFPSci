@@ -278,6 +278,7 @@ var RawInputState = function (frameDelay = config.render.frameDelay) {
 
     scope.cameraRotation.y -= movementX * config.player.mouseSensitivity / 100;
     if (scope.cameraRotation.y > 2*Math.PI) scope.cameraRotation.y -= 2*Math.PI;
+    if (scope.cameraRotation.y < 0) scope.cameraRotation.y += 2*Math.PI;
     //if (scope.cameraRotation.y < -Math.PI) scope.cameraRotation.y += Math.PI;
     scope.cameraRotation.x -= movementY * config.player.mouseSensitivity / 100 * (config.player.invertY ? -1 : 1);
     scope.cameraRotation.x = Math.max( -Math.PI/2, Math.min( Math.PI/2, scope.cameraRotation.x ) );
