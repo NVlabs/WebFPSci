@@ -90,7 +90,7 @@ var config = {
     width : getURLParamIfPresent('sceneWidth', 1000),               // Width of the scene
     depth : getURLParamIfPresent('sceneDepth', 1000),               // Depth of the scene
     floorColor: getURLParamIfPresent('floorColor', '#756b5a'),      // Color of the floor
-    
+
     fog : { // Fog parameters
       color: getURLParamIfPresent('fogColor', '#ffffff'),           // Fog color
       nearDistance: getURLParamIfPresent('fogNear', 0),             // Near distance for fog (no fog here) for linear interpolation
@@ -175,7 +175,10 @@ var config = {
     scoped : getURLParamIfPresent('weaponScope', false),            // Allow "scoped" or zoomed view?
     toggleScope : getURLParamIfPresent('weaponScopeToggle', true),  // Toggle scope with left mouse? (false means hold left mouse for scope)
     scopeFov : getURLParamIfPresent('weaponScopeFoV', 50),          // Field of view when scoped
-    fireSpread: getURLParamIfPresent('weaponFireSpread', 0.5),      // Fire spread (symmetric in degrees)                  
+    fireSpread: getURLParamIfPresent('weaponFireSpread', 0.5),      // Fire spread (symmetric in degrees)
+    missParticles: getURLParamIfPresent('weaponMissParticles', true), // Does weapon draw miss particles
+    missParticleSize: getURLParamIfPresent('weaponMissParticleSize', 0.2), // Size of miss particles
+    missParticleCount: getURLParamIfPresent('weaponMissParticleCount', 50), // Count of miss particles                  
   }
 };
 
@@ -1146,7 +1149,15 @@ function makeGUI() {
   scopeControls.add(config.weapon, 'toggleScope').name('Toggle Scope').listen();
   scopeControls.add(config.weapon, 'scopeFov', 10, config.render.hFoV).step(1).name('Scope FoV').listen();
   setGuiElementEnabled(scopeControls, config.weapon.scoped);
-  
+  weaponControls.add(config.weapon, 'missParticles').name('Particles').listen().onChange(function(value){
+    setGuiElementEnabled(missParticleControls, value);
+    value ? missParticleControls.open(): missParticleControls.close();
+  });
+  var missParticleControls = weaponControls.addFolder('Particles');
+  missParticleControls.add(config.weapon, 'missParticleSize', 0.01, 1).step(0.01).name('Size').listen();
+  missParticleControls.add(config.weapon, 'missParticleCount', 1, 100).step(1).name('Count').listen();
+  setGuiElementEnabled(scopeControls, config.weapon.missParticles);
+
   var importExport = gui.addFolder('Config Import/Export');
   var configExport = {update: exportConfig};
   var configImport = {update: function() { configInput.click(); }};
@@ -1615,7 +1626,7 @@ function animate() {
             }
           }
           else{                                               // Missed the target
-            makeParticles(intersect.point);
+            if(config.weapon.missParticles) makeParticles(intersect.point, new THREE.Color(0,0,0), config.weapon.missParticleSize, config.weapon.missParticleCount);
           }
           updateBanner();
         }
