@@ -1156,7 +1156,7 @@ function makeGUI() {
   var missParticleControls = weaponControls.addFolder('Particles');
   missParticleControls.add(config.weapon, 'missParticleSize', 0.01, 1).step(0.01).name('Size').listen();
   missParticleControls.add(config.weapon, 'missParticleCount', 1, 100).step(1).name('Count').listen();
-  setGuiElementEnabled(scopeControls, config.weapon.missParticles);
+  setGuiElementEnabled(missParticleControls, config.weapon.missParticles);
 
   var importExport = gui.addFolder('Config Import/Export');
   var configExport = {update: exportConfig};
