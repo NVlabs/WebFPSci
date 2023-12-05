@@ -20,90 +20,10 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.-->
 
-<style>
-    #instructions {
-        position: absolute;
-
-        width: 100%;
-        height: 100%;
-        padding : 0; margin: 0;
-
-        user-select: none;
-        cursor: pointer;
-
-        display: -webkit-box;
-        display: -moz-box;
-        display: box;
-
-        -webkit-box-orient: horizontal;
-        -moz-box-orient: horizontal;
-        box-orient: horizontal;
-
-        -webkit-box-pack: center;
-        -moz-box-pack: center;
-        box-pack: center;
-
-        -webkit-box-align: center;
-        -moz-box-align: center;
-        box-align: center;
-
-        color: #ffffff;
-        background-color: rgba(0,0,0,0.5);
-
-        text-align: center;
-        font-family: 'Trebuchet MS';
-        font-size: 14px;
-        line-height: 24px;
-        text-shadow: 1px 1px 1px #9E9E9E;
-    }
-
-    #banner {
-        position: absolute;
-        display: inline;
-
-        width: 100%;
-        height: 80px;
-
-        background: rgba(0,0,0, 0.5);
-
-        text-align: center;
-        font-family: 'Trebuchet MS';
-        font-size: 12pt;
-    }
-
-    #banner h1 {
-        display: inline-block;
-        color: #fff;
-        width: 30%;
-    }
-
-    /* Re-style the dat.gui elements (NV green where possible/easy) */
-    .dg *{
-        font-family: 'Trebuchet MS';
-    }
-    
-    .dg .c .slider-fg{
-        background: #76B900 !important;
-    }
-
-    .dg .cr.number {
-        border-left: 3px solid #76B900 !important;
-    }
-
-    .dg .cr.boolean {
-    border-left: 3px solid #76B900 !important;
-    }
-
-    .dg .cr.number input[type=text] {
-        color: #76B900 !important;
-    }
-
-
-</style>
-
 <head>
     <title>Web FPSci</title>
     <link rel="icon" href="assets/images/icon.png">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 
 <body style="margin: 0;">
@@ -116,15 +36,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.-->
     </div>
 
     <!-- Full screen div for the application (w/ basic instructions) -->
-    <div id="instructions">
+    <div id="instructions" class="instructions">
         <div>
             <h1>Click to Resume</h1>
-            Shoot: Left Mouse<br/>
-            Move: WASD (or arrows)<br/>
-            Run: SHIFT<br/>
-            Jump: SPACE<br/>
-            Look: Mouse</br>
-            Reset score banner: R
+            <p>Destroy the (red) reference target then eliminate the (green) task targets!</p>
+            <table class="controls_table">
+                <tbody>
+                    <tr><td>Move</td><td>WASD (or arrows)</td></tr>
+                    <tr><td>Look</td><td>Mouse</td></tr>
+                    <tr><td>Shoot</td><td>Left Mouse</td></tr>
+                    <tr><td colspan="2"></td></tr>
+                    <tr><td>Run</td><td>Shift</td></tr>
+                    <tr><td>Jump</td><td>Space</td></tr>
+                    <tr><td colspan="2"></td></tr>
+                    <tr><td>Reset score banner</td><td>R</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
