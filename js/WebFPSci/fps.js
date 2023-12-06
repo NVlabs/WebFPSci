@@ -190,6 +190,11 @@ var RawInputState = function (frameDelay = config.render.frameDelay) {
   }
 };
 
+
+// Event listeners for mouse click
+var clickShot = false;                            // Did a click occur?
+var inScopeView = false;                          // Are we in a scoped view?
+
 /**
  * Create a new first person controls object to handle user interaction
  * @param {The camera to associate with the controls} camera 
@@ -269,27 +274,11 @@ THREE.FirstPersonControls = function ( camera, scene, jumpHeight = config.player
     events.forEach(scope.processGameInputEvent);
   };
 
-  /**
-   * Get the object that represents the position/rotation of the camera
-   */
-  scope.getObject = function () {
-    return yawObject;
-  };
-
-  scope.getViewAzim = function() {
-    return yawObject.rotation.y;
-  }
-
-  scope.getViewElev = function() {
-    return pitchObject.rotation.x;
-  }
-
-  /**
-   * Get the position of the player
-   */
-  scope.position = function() {
-    return scope.getObject().position;
-  };
+  // Getters for object/aim direction/position
+  scope.getObject = function () { return yawObject; };                  // Get object representing player position/rotation
+  scope.getViewAzim = function() { return yawObject.rotation.y; };      // Get view azimuth
+  scope.getViewElev = function() { return pitchObject.rotation.x; };    // Get view elevation
+  scope.position = function() { return scope.getObject().position; };   // Get player position
 
   /**
    * Update function (called once per simulation cycle)
@@ -374,77 +363,6 @@ THREE.FirstPersonControls = function ( camera, scene, jumpHeight = config.player
   };
 };
 
-const instructions = document.getElementById("instructions");   // Get instructions division (overlay when FPS controls aren't enabled)
-
-var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;      // Check for pointer lock option
-if ( havePointerLock ) {
-  var element = document.body;    // Get the document body
-
-  /**
-   * Handle a change in the pointer lock state
-   * @param {Pointer lock change event} event 
-   */
-  var pointerlockchange = function ( event ) {
-    if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-      if (!fpsControls.enabled)
-        rawInputState.enable(true);
-      fpsControls.enabled = true;
-      instructions.style.display = 'none';
-    } else {
-      if (fpsControls.enabled)
-        rawInputState.enable(false);
-      fpsControls.enabled = false;
-      instructions.style.display = '-webkit-box';
-    }
-    dat.GUI.toggleHide();
-  };
-
-  /**
-   * Handle errors in pointer lock
-   * @param {Pointer lock error event} event 
-   */
-  var pointerlockerror = function ( event ) {
-    instructions.style.display = '';
-  };
-
-  // Add pointer lock change/error listeners
-  document.addEventListener( 'pointerlockchange', pointerlockchange, false );
-  document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
-  document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
-  document.addEventListener( 'pointerlockerror', pointerlockerror, false );
-  document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
-  document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
-
-  // Click handler for pointer lock
-  instructions.addEventListener( 'click', function ( event ) {
-    element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-    if ( /Firefox/i.test( navigator.userAgent ) ) {   // Firefox specific features
-      /**
-       * Handler for full screen change event
-       * @param {Fullscreen change event} event 
-       */
-      var fullscreenchange = function ( event ) {
-        if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
-          document.removeEventListener( 'fullscreenchange', fullscreenchange );
-          document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
-          element.requestPointerLock();
-        }
-      };
-      document.addEventListener( 'fullscreenchange', fullscreenchange, false );
-      document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
-      element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
-      element.requestFullscreen();
-    } 
-    else {                            // Non Firefox browsers here
-      if(config.render.fullscreen) { element.requestFullscreen(); }   // Optionally request fullscreen
-      element.requestPointerLock();   // For other browsers just request pointer lock
-    }
-  }, false );
-} 
-else {    // Let the user know their browser doesn't support pointer lock
-  instructions.innerHTML = '<h1>Your browser does not suport PointerLock!</h1>';
-}
-
 var last_fire_time = 0;               // Last weapon fire time
 
 /*
@@ -491,36 +409,6 @@ function fire(now) {
     if(config.weapon.auto === false) clickShot = false;    // Reset the click shot semaphore if not automatic
   }
 }
-
-/**
- * Make the GUI and setup experiment on window load
- */
-window.onload = function() {
- makeGUI();
- expInit();
-};
-
-/**
- * Handle window resize events (update the renderer/camera and click-to-photon region)
- */
-function onWindowResize() {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const aspect = w / h;
-
-  renderer.setSize(w, h);
-  
-  camera.aspect = aspect; 
-  camera.updateProjectionMatrix();
-  updateWarpCamera(aspect);
-
-  drawReticle();
-  drawC2P();
-}
-
-// Event listeners for mouse click
-var clickShot = false;                            // Did a click occur?
-var inScopeView = false;                          // Are we in a scoped view?
 
 // Setup storage for high-level primitives
 var camera;                               // Cameras
@@ -586,24 +474,19 @@ function animate() {
 
   // Game processing that only occurs when the mouse is captured
   if ( fpsControls.enabled ) {
+    // Update raycaster positioning
     raycaster.set(camera.getWorldPosition(new THREE.Vector3()), camera.getWorldDirection(new THREE.Vector3()));
-  
-    // Handle request for weapon fire
-    if (clickShot) fire(now);
-
-    // Move targets after fire (if first person controls are enabled)
-    updateTargets(dt);
-    updateParticles(now);
+    if (clickShot) fire(now);     // Handle request for weapon fire
+    updateTargets(dt);    // Move targets after fire (if first person controls are enabled)
+    updateParticles(now); // Update particle effects (if drawn)
   }
 
   // Handle rendering here
   if (!config.render.setFPS || dt >= 0.95 * (1 / config.render.frameRate)) {
     updateReticle(now, last_fire_time);
     if(config.render.latewarp) renderer.setRenderTarget( renderedImage );  // Change render target for latewarp
-
     last_render_time = now;                       // Update the last render time
     renderer.render( scene, camera );             // Render the scene
-
     if(config.render.latewarp) applyWarp();       // Apply warp if requested
     stats.update();                               // Update rendering statistics
   }
